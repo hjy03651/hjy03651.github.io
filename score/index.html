@@ -54,7 +54,14 @@
       border-radius: 6px;
       padding: 3px 6px;
       font-size: 13px;
-      width: 70px;
+    }
+
+    input[type="number"] {
+      width: 90px;
+    }
+
+    select {
+      width: 110px;
     }
 
     button {
@@ -87,7 +94,7 @@
 
     .score-wrapper {
       flex: 1;
-      min-height: 260px;
+      min-height: 340px;
       border-radius: 12px;
       overflow-x: auto;
       overflow-y: hidden;
@@ -128,6 +135,17 @@
 <body>
   <div class="toolbar">
     <div class="toolbar-group">
+      <label for="baseFreqInput">기음(Hz)</label>
+      <input
+        id="baseFreqInput"
+        type="number"
+        value="261.6255653"
+        step="0.01"
+        min="20"
+      />
+    </div>
+
+    <div class="toolbar-group">
       <label for="bpmInput">BPM</label>
       <input id="bpmInput" type="number" value="120" min="40" max="260" />
     </div>
@@ -149,11 +167,7 @@
       </label>
       <label>
         <input type="radio" name="noteType" value="third" />
-        3배음(빨 수직)
-      </label>
-      <label>
-        <input type="radio" name="noteType" value="eleventh" />
-        11배음(노 대각)
+        3배음(빨 세로)
       </label>
     </div>
 
@@ -169,7 +183,8 @@
   </div>
 
   <div class="score-wrapper">
-    <canvas id="scoreCanvas" width="3200" height="320"></canvas>
+    <!-- 세로를 더 길게 -->
+    <canvas id="scoreCanvas" width="3200" height="420"></canvas>
   </div>
 
   <script>
@@ -177,12 +192,16 @@
     const canvas = document.getElementById('scoreCanvas');
     const ctx = canvas.getContext('2d');
 
-    const ROW_COUNT = 12;          // 세로 음높이 칸 수
-    const STEP_COUNT = 128;        // 가로 스텝 수 (시간)
+    const ROW_COUNT = 16;          // 세로 음높이 칸 수 (늘림)
+    const STEP_COUNT = 128;        // 가로 스텝 수
     const STEP_WIDTH = canvas.width / STEP_COUNT;
     const ROW_HEIGHT = canvas.height / ROW_COUNT;
 
+    const FUNDAMENTAL_ROW = Math.floor(ROW_COUNT / 2); // 가운데 굵은 가로선
+
     // 노트 데이터: {step, row, type}
+    //  - base  : 흰 가로선 (row가 그 줄)
+    //  - third : 3배음 세로막대 (FUNDAMENTAL_ROW ~ row)
     const notes = [];
 
     // Web Audio
@@ -191,11 +210,22 @@
     let playTimer = null;
     let currentStep = 0;
 
+    // UI
+    const baseFreqInput = document.getElementById('baseFreqInput');
     const bpmInput = document.getElementById('bpmInput');
     const stepsSelect = document.getElementById('stepsSelect');
     const playBtn = document.getElementById('playBtn');
     const stopBtn = document.getElementById('stopBtn');
     const clearBtn = document.getElementById('clearBtn');
+
+    let baseFreq = parseFloat(baseFreqInput.value) || 261.6255653;
+
+    baseFreqInput.addEventListener('change', () => {
+      const v = parseFloat(baseFreqInput.value);
+      if (!isNaN(v) && v > 0) {
+        baseFreq = v;
+      }
+    });
 
     // 현재 선택된 노트 타입
     let currentNoteType = 'base';
@@ -218,10 +248,14 @@
       // 가로 줄 (음높이 라인)
       for (let r = 0; r < ROW_COUNT; r++) {
         const y = r * ROW_HEIGHT + ROW_HEIGHT / 2;
-        ctx.strokeStyle = r === Math.floor(ROW_COUNT / 2)
-          ? 'rgba(255,255,255,0.45)'
-          : 'rgba(255,255,255,0.18)';
-        ctx.lineWidth = 1;
+        if (r === FUNDAMENTAL_ROW) {
+          // 가운데 기음 라인 (굵게)
+          ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+          ctx.lineWidth = 2.2;
+        } else {
+          ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+          ctx.lineWidth = 1;
+        }
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
@@ -261,36 +295,32 @@
 
     function drawNotes() {
       notes.forEach((note) => {
-        const x = note.step * STEP_WIDTH;
+        const xCell = note.step * STEP_WIDTH;
         const centerY = note.row * ROW_HEIGHT + ROW_HEIGHT / 2;
 
         if (note.type === 'base') {
-          // 흰 수평 노트
+          // 흰 수평 노트 (조금 더 길게)
+          const length = STEP_WIDTH * 1.4;
           ctx.strokeStyle = '#f9fafb';
           ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.moveTo(x + 2, centerY);
-          ctx.lineTo(x + STEP_WIDTH - 2, centerY);
+          ctx.moveTo(xCell + 2, centerY);
+          ctx.lineTo(xCell + length, centerY);
           ctx.stroke();
         } else if (note.type === 'third') {
-          // 빨간 수직 (3배음, 2칸)
+          // 3배음 세로막대
+          // 가운데 기음 라인에서 클릭한 칸까지, 왼쪽에 딱 붙게
+          const startY =
+            FUNDAMENTAL_ROW * ROW_HEIGHT + ROW_HEIGHT / 2;
+          const endY = centerY;
+
           ctx.strokeStyle = 'rgba(255,120,140,0.95)';
           ctx.lineWidth = 4;
-          const topY = centerY - ROW_HEIGHT;
-          const bottomY = centerY + ROW_HEIGHT;
+
+          const x = xCell + 3; // 칸 왼쪽에 붙이기
           ctx.beginPath();
-          ctx.moveTo(x + STEP_WIDTH / 2, topY);
-          ctx.lineTo(x + STEP_WIDTH / 2, bottomY);
-          ctx.stroke();
-        } else if (note.type === 'eleventh') {
-          // 노란 대각선 (11배음, 5칸)
-          ctx.strokeStyle = 'rgba(252,211,77,0.95)';
-          ctx.lineWidth = 4;
-          const startY = centerY - (ROW_HEIGHT * 2.5);
-          const endY = centerY + (ROW_HEIGHT * 2.5);
-          ctx.beginPath();
-          ctx.moveTo(x + 2, startY);
-          ctx.lineTo(x + STEP_WIDTH - 2, endY);
+          ctx.moveTo(x, startY);
+          ctx.lineTo(x, endY);
           ctx.stroke();
         }
       });
@@ -299,72 +329,78 @@
     // ===== 클릭으로 노트 추가 / 삭제 =====
     canvas.addEventListener('click', (e) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left + canvas.parentElement.scrollLeft;
+      const x =
+        e.clientX - rect.left + canvas.parentElement.scrollLeft;
       const y = e.clientY - rect.top;
 
       const step = Math.floor(x / STEP_WIDTH);
       const row = Math.floor(y / ROW_HEIGHT);
 
-      // 이미 그 스텝+row에 같은 타입 노트가 있으면 삭제
-      const idx = notes.findIndex(
-        (n) => n.step === step && n.row === row && n.type === currentNoteType
-      );
-      if (idx >= 0) {
-        notes.splice(idx, 1);
-      } else {
-        notes.push({ step, row, type: currentNoteType });
+      if (currentNoteType === 'base') {
+        // 흰 가로선 토글
+        const idx = notes.findIndex(
+          (n) =>
+            n.step === step &&
+            n.row === row &&
+            n.type === 'base'
+        );
+        if (idx >= 0) {
+          notes.splice(idx, 1);
+        } else {
+          notes.push({ step, row, type: 'base' });
+        }
+      } else if (currentNoteType === 'third') {
+        // 3배음 세로막대: FUNDAMENTAL_ROW ~ row
+        const idx = notes.findIndex(
+          (n) =>
+            n.step === step &&
+            n.row === row &&
+            n.type === 'third'
+        );
+        if (idx >= 0) {
+          notes.splice(idx, 1);
+        } else {
+          notes.push({ step, row, type: 'third' });
+        }
       }
 
       drawGrid();
     });
 
-    // ===== 음높이 → 주파수 매핑 (아주 간단한 버전) =====
-    // 여기서 ratioTable을 순정율에 맞게 고치면 됨.
-    const baseFreq = 220; // A3 근처
-    const ratioTable = [
-      1.0,       // 0: 기준
-      9 / 8,     // 1
-      5 / 4,     // 2
-      4 / 3,     // 3
-      3 / 2,     // 4
-      5 / 3,     // 5
-      15 / 8,    // 6
-      2.0,       // 7
-      9 / 4,     // 8 ...
-      5 / 2,
-      8 / 3,
-      3.0
-    ];
+    // ===== 주파수 매핑 =====
+    // base: 가운데 기음 라인을 기준으로 위아래를 대략 12-TET처럼 배치
+    function rowToFrequency(row) {
+      const offset = FUNDAMENTAL_ROW - row; // 위/아래
+      return baseFreq * Math.pow(2, offset / 12);
+    }
 
-    function rowToFrequency(row, type) {
-      const centerIndex = Math.floor(ROW_COUNT / 2);
-      const offset = row - centerIndex;
-      const baseIndex = Math.max(
-        0,
-        Math.min(ratioTable.length - 1, centerIndex + offset)
-      );
-      let freq = baseFreq * ratioTable[baseIndex];
-
-      if (type === 'third') {
-        freq *= 3; // 3배음
-      } else if (type === 'eleventh') {
-        freq *= 11 / 4; // 대략 도~파# 느낌으로 임의 설정
-      }
-      return freq;
+    // 3배음용: 기음 기준 3:2 비율 (도~솔 느낌)
+    function thirdFrequency() {
+      return baseFreq * (3 / 2);
     }
 
     function playNote(row, type, durationSec) {
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
       }
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.value = rowToFrequency(row, type);
+
+      if (type === 'base') {
+        osc.frequency.value = rowToFrequency(row);
+      } else if (type === 'third') {
+        osc.frequency.value = thirdFrequency();
+      }
 
       gain.gain.value = 0.18;
-      gain.gain.setTargetAtTime(0, audioCtx.currentTime + durationSec * 0.4, 0.05);
+      gain.gain.setTargetAtTime(
+        0,
+        audioCtx.currentTime + durationSec * 0.4,
+        0.05
+      );
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
@@ -377,20 +413,22 @@
     function startPlayback() {
       if (isPlaying) return;
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
       }
 
       const bpm = parseFloat(bpmInput.value) || 120;
-      const beatDivision = 4; // 4분음표 기준
-      const stepPerBeat = beatDivision; // 간단히 16step = 4박 기준
+      const beatDivision = 4;
+      const stepPerBeat = beatDivision;
       const stepDurationSec = 60 / bpm / (stepPerBeat / 4);
 
       isPlaying = true;
       currentStep = 0;
 
       playTimer = setInterval(() => {
-        // 현재 스텝의 노트들 재생
-        const currentNotes = notes.filter((n) => n.step === currentStep);
+        const currentNotes = notes.filter(
+          (n) => n.step === currentStep
+        );
         currentNotes.forEach((n) => {
           playNote(n.row, n.type, stepDurationSec * 0.95);
         });
