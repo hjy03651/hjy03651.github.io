@@ -165,7 +165,14 @@
     const ROW_HEIGHT = canvas.height / ROW_COUNT;
     const FUNDAMENTAL_ROW = Math.floor(ROW_COUNT / 2); // 기음 줄
     const THIRD_OFFSET = 1;                            // 3배음 라인: ±1칸
-    const RATIO_PER_STEP = 3 / 2;                      // 한 칸 = 3/2배
+    const RATIO_PER_STEP = 3 / 2;          // 이미 있던 3배음 격자 비율
+
+    // 5배음 비율 (각 한 칸당 5/4배라고 보는 축)
+    const FIFTH_RATIO = 5 / 4;
+    // "3/2 격자"에서 5/4가 몇 칸 높이인지 (세로 길이 비율)
+    const FIFTH_OFFSET_FACTOR = Math.log(FIFTH_RATIO) / Math.log(RATIO_PER_STEP);
+    // 실제 픽셀 단위 길이는 drawNotes() 안에서 ROW_HEIGHT랑 곱해서 씀
+
 
     const BARS = 16;           // 전체 마디 수 (원하면 늘리기/줄이기)
 
@@ -274,20 +281,23 @@
     function drawNotes() {
       const fundamentalY =
         FUNDAMENTAL_ROW * ROW_HEIGHT + ROW_HEIGHT / 2;
-
+    
+      // 5배음 막대의 세로 픽셀 길이 (항상 같은 길이)
+      const fifthPixel = ROW_HEIGHT * FIFTH_OFFSET_FACTOR;
+    
       notes.forEach((note) => {
-        const centerY = note.row * ROW_HEIGHT + ROW_HEIGHT / 2;
         const xCell = note.step * STEP_WIDTH;
-
-        // ▶ 노트의 가로 길이: 슬롯 폭의 90% (겹치지 않게)
+        const centerY = note.row * ROW_HEIGHT + ROW_HEIGHT / 2;
+    
+        // ─ 가로막대 기본 길이: 슬롯 안에서 거의 꽉 차게
         const marginRatio = 0.05;
-        const startX = xCell + STEP_WIDTH * marginRatio;
-        const endX   = xCell + STEP_WIDTH * (1 - marginRatio);
-
-        // 1) 빨간 세로막대 (기음 줄 → 노트 줄)
+        const baseStartX = xCell + STEP_WIDTH * marginRatio;
+        const baseEndX   = xCell + STEP_WIDTH * (1 - marginRatio);
+    
+        // 1) 빨간 세로막대 (3배음, 기음 줄 → 노트 줄)
         if (note.row !== FUNDAMENTAL_ROW) {
-          const verticalX = startX; // 가로막대 왼쪽에 딱 붙게
-
+          const verticalX = baseStartX; // 가로막대 왼쪽에 딱 붙게
+    
           ctx.strokeStyle = 'rgba(255,120,140,0.9)';
           ctx.lineWidth = 4;
           ctx.beginPath();
@@ -295,12 +305,47 @@
           ctx.lineTo(verticalX, centerY);
           ctx.stroke();
         }
-
-        // 2) 흰 가로막대
+    
+        // 2) 초록 세로막대 (5배음, 노트 오른쪽에 달라붙음)
+        //    노트가 기음보다 위에 있으면 아래로, 아래에 있으면 위로 향하게 할게.
+        const greenX = baseEndX; // 가로막대 오른쪽 끝에 붙이기
+        let greenY1, greenY2;
+        if (note.row < FUNDAMENTAL_ROW) {
+          // 높은 음: 위에 있으니까 5/4 차이를 아래쪽으로 표시
+          greenY1 = centerY;
+          greenY2 = centerY + fifthPixel;
+        } else if (note.row > FUNDAMENTAL_ROW) {
+          // 낮은 음: 아래에 있으니까 5/4 차이를 위쪽으로 표시
+          greenY1 = centerY;
+          greenY2 = centerY - fifthPixel;
+        } else {
+          // 기음 줄 자체에 있는 노트면 그냥 위로 그려두자
+          greenY1 = centerY;
+          greenY2 = centerY - fifthPixel;
+        }
+    
+        ctx.strokeStyle = 'rgba(120, 255, 150, 0.95)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(greenX, greenY1);
+        ctx.lineTo(greenX, greenY2);
+        ctx.stroke();
+    
+        // 3) 흰 가로막대
+        //    "가로막대를 놓았을 때 세로막대와 겹치면 줄이고,
+        //     아니면 기본 길이" 조건을 이렇게 해석했어:
+        //    - 기본은 baseStartX ~ baseEndX
+        //    - 하지만 초록 막대(greenX)보다 오른쪽으로 더 나가려고 하면
+        //      거기서 잘라서, 딱 막대에 붙어 끝나도록.
+        let endX = baseEndX;
+        if (endX > greenX) {
+          endX = greenX;   // 세로막대와 겹치지 않게 여기서 잘라줌
+        }
+    
         ctx.strokeStyle = '#f9fafb';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(startX, centerY);
+        ctx.moveTo(baseStartX, centerY);
         ctx.lineTo(endX, centerY);
         ctx.stroke();
       });
