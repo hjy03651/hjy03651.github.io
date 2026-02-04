@@ -1,1 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>한수현 | Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="인제군수 후보 한수현현">
 
+    <!-- 웹폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #050816;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.15);
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --border-radius: 18px;
+            --transition-fast: 0.15s ease-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            position: relative; /* ::before 오버레이용 */
+            font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+            /* 배경 사진 설정: 경로만 본인 파일로 변경 */
+            background-image: url("/asset/hsh_profilepic.svg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        /* 화면 전체에 깔리는 아래쪽 어두운 그라데이션 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(
+                circle at top,
+                rgba(0, 0, 0, 0.0) 0%,
+                rgba(0, 0, 0, 0.0) 35%,
+                rgba(0, 0, 0, 0.6) 100%
+            );
+            z-index: -1; /* 실제 내용 뒤에 깔리게 */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .card {
+            background: linear-gradient(
+                to bottom,
+                rgba(15, 23, 42, 0.72),
+                rgba(15, 23, 42, 0.94)
+            );
+            border-radius: 28px;
+            padding: 28px 24px 24px;
+            box-shadow:
+                0 30px 80px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(148, 163, 184, 0.25);
+            backdrop-filter: blur(18px);
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #a855f7);
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.05em;
+        }
+
+        .profile-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-text p {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .tagline {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tagline-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.18);
+        }
+
+        .links {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(15, 23, 42, 0.94);
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform var(--transition-fast),
+                        box-shadow var(--transition-fast),
+                        border-color var(--transition-fast),
+                        background var(--transition-fast);
+        }
+
+        .link-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .link-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .link-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .link-title {
+            font-size: 14px;
+        }
+
+        .link-subtitle {
+            font-size: 11px;
+            color: var(--text-sub);
+        }
+
+        .link-arrow {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        .link-button:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+            background: radial-gradient(circle at top left,
+              rgba(56, 189, 248, 0.22),
+              rgba(15, 23, 42, 1));
+            box-shadow:
+                0 12px 26px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(56, 189, 248, 0.35);
+        }
+
+        .footer {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-sub);
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 22px 18px 18px;
+                border-radius: 22px;
+            }
+
+            .profile-text h1 {
+                font-size: 20px;
+            }
+
+            .link-button {
+                padding: 11px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="card">
+            <!-- 프로필 영역 -->
+            <section class="profile">
+                <!-- 프로필 이미지: 실제 이미지가 있다면 <img>로 교체 -->
+                <div class="avatar">
+                    <div class="avatar-inner">
+                        NZ
+                    </div>
+                </div>
+
+                <div class="profile-text">
+                    <h1>한수현 | Suhyeon Han</h1>
+                    <p>
+                        인제군수 출마 예정자<br>
+                        Active INJE
+                    </p>
+                    <div class="tagline">
+                        <span class="tagline-dot"></span>
+                        <span>더불어민주당</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 링크 버튼들 -->
+            <section class="links">
+                <a class="link-button" href="instagram.com/hansuhyeon1" target="_blank" rel="noopener">
+                    <div class="link-left">
+                        <div class="link-icon">🌐</div>
+                        <div class="link-label">
+                            <span class="link-title">Instagram</span>
+                            <span class="link-subtitle">한수현 인스타그램</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">↗</span>
+                </a>
+
+                <a class="link-button" href="https://www.facebook.com/suhyeoun.han.9" target="_blank" rel="noopener">
+                    <div class="link-left">
+                        <div class="link-icon">🐙</div>
+                        <div class="link-label">
+                            <span class="link-title">Facebook</span>
+                            <span class="link-subtitle">한수현 페이스북</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">↗</span>
+                </a>
+
+                <a class="link-button" href="https://youtube.com/channel/UCNghriB86PXcJG7JWMh0W1w?si=dRx2dXrJpYdvRN3R" target="_blank" rel="noopener">
+                    <div class="link-left">
+                        <div class="link-icon">✶</div>
+                        <div class="link-label">
+                            <span class="link-title">Youtube</span>
+                            <span class="link-subtitle">한수현 유튜브</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">↗</span>
+                </a>
+
+                <a class="link-button" href="mailto:injehsh5@hanmail.com">
+                    <div class="link-left">
+                        <div class="link-icon">✉︎</div>
+                        <div class="link-label">
+                            <span class="link-title">Email</span>
+                            <span class="link-subtitle">injehsh5@hanmail.com</span>
+                        </div>
+                    </div>
+                    <span class="link-arrow">→</span>
+                </a>
+            </section>
+
+            <div class="footer">
+                © <span id="year">2026</span> Suhyeon Han · built by nzk_ (@nzk_th_)
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 연도 자동 업데이트
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
