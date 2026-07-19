@@ -1,2 +1,454 @@
-<body><h1>코세바보바보바ㅓ보바ㅓ바ㅣ버버</h1>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>About | Cosse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* 배경 패턴 색상과 크기는 여기서 한 번에 조절할 수 있습니다. */
+      --pattern-bg: #ff4651;
+      --pattern-arrow: #20201f;
+      --pattern-size: 144px;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--pattern-bg);
+    }
+
+    body {
+      font-family: 'Nanum Gothic', system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      position: relative;
+      background: var(--pattern-bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px clamp(18px, 7vw, 96px);
+      color: #222;
+    }
+
+    .arrow-pattern {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .arrow-pattern.is-ready {
+      opacity: 1;
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 650px;
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 16px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+      padding: 24px 20px 28px;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .profile {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.9);
+      object-fit: cover;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+      margin-bottom: 12px;
+      background: #ddd;
+    }
+
+    .name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .subsubtitle {
+      font-size: 10px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .social-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .social-link {
+      text-decoration: none;
+      color: #444;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .tagline {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-top: 10px;
+      margin-bottom: 18px;
+    }
+
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .link-card {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      background: rgba(255, 70, 81, 0.25);
+      backdrop-filter: blur(6px);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out,
+        background 0.08s ease-out;
+      color: inherit;
+    }
+
+    .link-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 70, 70, 0.38);
+    }
+
+    .link-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .link-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .link-text-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .link-text-desc {
+      font-size: 13px;
+      color: #333;
+      opacity: 0.9;
+    }
+
+    .link-arrow {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      padding: 14px 14px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding-bottom: 4px;
+    }
+
+    .section-body {
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --pattern-size: 104px;
+      }
+
+      body {
+        padding: 18px;
+      }
+
+      .page {
+        padding: 18px 14px 22px;
+      }
+
+      .link-card {
+        padding: 9px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas class="arrow-pattern" aria-hidden="true"></canvas>
+  <main class="page">
+    <div class="brand">Hello World!</div>
+
+    <section class="profile">
+      <img
+        src="/about/assets/icons/cosse.svg"
+        alt="amanojaku"
+        class="profile-img"
+      />
+      <div class="name">코세 (Cosse_)</div>
+      <div class="subtitle">느자구없는 과격한 송충이</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="links">
+
+      <a href="https://x.com/nzk_th_" class="link-card" target="_blank">
+        <div class="link-main">
+          <img src="/about/assets/icons/twitter.svg" alt="X" style="width:18px;height:18px;">
+          <div>
+            <div class="link-text-title">본계</div>
+            <div class="link-text-desc">잡덕 (현재 주력: 동방)</div>
+          </div>
+        </div>
+        <div class="link-arrow">›</div>
+      </a>
+
+      <a href="https://x.com/stupid_af__" class="link-card" target="_blank">
+        <div class="link-main">
+          <img src="/about/assets/icons/twitter.svg" alt="X" style="width:18px;height:18px;">
+          <div>
+            <div class="link-text-title">건담계 🔑</div>
+            <div class="link-text-desc">신기동전기 건담 W, 철혈의 오펀스</div>
+          </div>
+        </div>
+        <div class="link-arrow">›</div>
+      </a>
+
+      <a href="https://x.com/nezuki_ini__" class="link-card" target="_blank">
+        <div class="link-main">
+          <img src="/about/assets/icons/twitter.svg" alt="X" style="width:18px;height:18px;">
+          <div>
+            <div class="link-text-title">비계</div>
+            <div class="link-text-desc">
+              본계에서 못하는 얘길 합니다
+            </div>
+          </div>
+        </div>
+        <div class="link-arrow">›</div>
+      </a>
+    </section>
+
+
+    <section class="section">
+      <div class="section-title">Twitter</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">About me</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">팔로우와 지뢰</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">동방 관련</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">1.5~2차 창작 관련</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">기타 장르</div>
+      <div class="section-body">✳︎ 바보
+      </div>
+    </section>
+
+  </main>
+  <script>
+    (() => {
+      const canvas = document.querySelector('.arrow-pattern');
+      const context = canvas.getContext('2d');
+      const arrow = new Image();
+      let resizeFrame = 0;
+
+      arrow.src = './arrow.png';
+
+      function drawPattern() {
+        if (!arrow.naturalWidth) return;
+
+        const styles = getComputedStyle(document.documentElement);
+        const background = styles.getPropertyValue('--pattern-bg').trim();
+        const arrowColor = styles.getPropertyValue('--pattern-arrow').trim();
+        const size = parseFloat(styles.getPropertyValue('--pattern-size'));
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        /*
+          arrow.png 원본(500×500)의 경계 좌표로 만든 비스듬한 격자입니다.
+
+          진행 방향 이동: (428.5, 428.5)
+            현재 화살표 아랫부분의 사선 [(500,357)–(357,500)] 중점
+            → 다음 화살표의 왼쪽 위 꼭짓점
+
+          왼쪽 아래 이동: (-467, 441)
+            현재 화살표의 왼쪽 아래 꼭짓점 → 다음 화살표의 오른쪽 위 꼭짓점
+
+          이 두 이동을 계속 조합하면 참고 그림의 위·왼쪽·오른쪽·아래
+          네 화살표 배치가 끊기지 않고 화면 전체로 반복됩니다.
+        */
+        const lowerEdgeMidpoint = (500 + 357) / 2;
+        const rightVector = [
+          size * (lowerEdgeMidpoint / 500),
+          size * (lowerEdgeMidpoint / 500)
+        ];
+        const leftVector = [-size * (467 / 500), size * (441 / 500)];
+        const determinant =
+          rightVector[0] * leftVector[1] -
+          leftVector[0] * rightVector[1];
+
+        const corners = [
+          [-size, -size],
+          [width + size, -size],
+          [-size, height + size],
+          [width + size, height + size]
+        ];
+
+        const latticeCoordinates = corners.map(([x, y]) => [
+          (x * leftVector[1] - leftVector[0] * y) / determinant,
+          (rightVector[0] * y - x * rightVector[1]) / determinant
+        ]);
+
+        const iMin = Math.floor(
+          Math.min(...latticeCoordinates.map(([i]) => i))
+        ) - 2;
+        const iMax = Math.ceil(
+          Math.max(...latticeCoordinates.map(([i]) => i))
+        ) + 2;
+        const jMin = Math.floor(
+          Math.min(...latticeCoordinates.map(([, j]) => j))
+        ) - 2;
+        const jMax = Math.ceil(
+          Math.max(...latticeCoordinates.map(([, j]) => j))
+        ) + 2;
+
+        canvas.width = Math.ceil(width * pixelRatio);
+        canvas.height = Math.ceil(height * pixelRatio);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = background;
+        context.fillRect(0, 0, width, height);
+        context.imageSmoothingEnabled = true;
+
+        const coloredArrow = document.createElement('canvas');
+        const coloredContext = coloredArrow.getContext('2d');
+        coloredArrow.width = arrow.naturalWidth;
+        coloredArrow.height = arrow.naturalHeight;
+        coloredContext.drawImage(arrow, 0, 0);
+        coloredContext.globalCompositeOperation = 'source-in';
+        coloredContext.fillStyle = arrowColor;
+        coloredContext.fillRect(0, 0, coloredArrow.width, coloredArrow.height);
+
+        for (let i = iMin; i <= iMax; i += 1) {
+          for (let j = jMin; j <= jMax; j += 1) {
+            const x =
+              i * rightVector[0] + j * leftVector[0];
+            const y =
+              i * rightVector[1] + j * leftVector[1];
+            context.drawImage(coloredArrow, x, y, size, size);
+          }
+        }
+
+        canvas.classList.add('is-ready');
+      }
+
+      arrow.addEventListener('load', drawPattern);
+
+      if (arrow.complete && arrow.naturalWidth) {
+        drawPattern();
+      }
+
+      window.addEventListener('resize', () => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(drawPattern);
+      });
+    })();
+  </script>
 </body>
+</html>
