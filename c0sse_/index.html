@@ -278,7 +278,7 @@
         <div class="link-main">
           <img src="/about/assets/icons/twitter.svg" alt="X" style="width:18px;height:18px;">
           <div>
-            <div class="link-text-title">건담계</div>
+            <div class="link-text-title">건담계 🔑</div>
             <div class="link-text-desc">신기동전기 건담 W, 철혈의 오펀스</div>
           </div>
         </div>
@@ -289,7 +289,7 @@
         <div class="link-main">
           <img src="/about/assets/icons/twitter.svg" alt="X" style="width:18px;height:18px;">
           <div>
-            <div class="link-text-title">비계 🔑</div>
+            <div class="link-text-title">비계</div>
             <div class="link-text-desc">
               본계에서 못하는 얘길 합니다
             </div>
@@ -358,10 +358,10 @@
         const height = window.innerHeight;
 
         /*
-          arrow.png 원본(500×500)의 경계 좌표로 만든 비스듬한 격자입니다.
+          arrow(1).png 원본(500×500)의 경계 좌표로 만든 비스듬한 격자입니다.
 
-          진행 방향 이동: (428.5, 428.5)
-            현재 화살표 아랫부분의 사선 [(500,357)–(357,500)] 중점
+          진행 방향 이동: (406.5, 400)
+            현재 화살표 아랫부분의 사선 [(500,300)–(313,500)] 중점
             → 다음 화살표의 왼쪽 위 꼭짓점
 
           왼쪽 아래 이동: (-467, 441)
@@ -370,10 +370,11 @@
           이 두 이동을 계속 조합하면 참고 그림의 위·왼쪽·오른쪽·아래
           네 화살표 배치가 끊기지 않고 화면 전체로 반복됩니다.
         */
-        const lowerEdgeMidpoint = (500 + 357) / 2;
+        const lowerEdgeMidpointX = (500 + 313) / 2;
+        const lowerEdgeMidpointY = (300 + 500) / 2;
         const rightVector = [
-          size * (lowerEdgeMidpoint / 500),
-          size * (lowerEdgeMidpoint / 500)
+          size * (lowerEdgeMidpointX / 500),
+          size * (lowerEdgeMidpointY / 500)
         ];
         const leftVector = [-size * (467 / 500), size * (441 / 500)];
         const determinant =
