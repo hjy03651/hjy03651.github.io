@@ -19,7 +19,6 @@
     }
 
     :root {
-      /* 배경 패턴 색상과 크기는 여기서 한 번에 조절할 수 있습니다. */
       --pattern-bg: #ff4651;
       --pattern-arrow: #20201f;
       --pattern-size: 144px;
@@ -357,19 +356,6 @@
         const width = window.innerWidth;
         const height = window.innerHeight;
 
-        /*
-          arrow(1).png 원본(500×500)의 경계 좌표로 만든 비스듬한 격자입니다.
-
-          진행 방향 이동: (406.5, 400)
-            현재 화살표 아랫부분의 사선 [(500,300)–(313,500)] 중점
-            → 다음 화살표의 왼쪽 위 꼭짓점
-
-          왼쪽 아래 이동: (-467, 441)
-            현재 화살표의 왼쪽 아래 꼭짓점 → 다음 화살표의 오른쪽 위 꼭짓점
-
-          이 두 이동을 계속 조합하면 참고 그림의 위·왼쪽·오른쪽·아래
-          네 화살표 배치가 끊기지 않고 화면 전체로 반복됩니다.
-        */
         const lowerEdgeMidpointX = (500 + 313) / 2;
         const lowerEdgeMidpointY = (300 + 500) / 2;
         const rightVector = [
